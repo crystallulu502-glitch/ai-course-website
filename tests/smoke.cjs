@@ -11,8 +11,23 @@ const assert = require('node:assert/strict');
       const response = await page.goto('http://127.0.0.1:8000');
       assert.equal(response.status(), 200);
       assert.match(await page.title(), /普通人如何拥有第一个AI员工/);
-      assert.equal(await page.locator('.lessons article').count(), 6);
-      for (const id of ['about','audience','outline','outcomes','faq','enroll']) assert.equal(await page.locator(`#${id}`).count(), 1);
+      assert.equal(await page.locator('.lessons article').count(), 5);
+      for (const id of ['about','benefits','audience','outline','outcomes','faq','enroll']) assert.equal(await page.locator(`#${id}`).count(), 1);
+      assert.equal(await page.locator('#benefits .cards article').count(), 3);
+      assert.equal(await page.locator('#audience .cards article').count(), 4);
+      assert.equal(await page.locator('#outcomes .cards article').count(), 4);
+      assert.equal(await page.locator('.subtitle').innerText(), '不会编程，也能让AI帮你写内容、整理资料、处理重复工作。');
+      assert.match(await page.locator('.hero-price').innerText(), /9.9元/);
+      assert.match(await page.locator('.tags').innerText(), /零基础可学｜手机\/电脑均可｜边学边搭自己的AI员工/);
+      assert.equal(await page.locator('#faq summary').count(), 7);
+      for (const button of await page.locator('[data-enroll]').all()) {
+        assert.match(await button.innerText(), /9.9元立即解锁/);
+        if (await button.isVisible()) {
+          const box = await button.boundingBox();
+          assert.ok(box.height >= 44 && box.width <= width, `button target at ${width}`);
+          assert.equal(await button.evaluate(el => el.scrollWidth <= el.clientWidth), true);
+        }
+      }
       assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true, `overflow at ${width}`);
       for (const link of await page.locator('[data-enroll]').all()) {
         if (!await link.isVisible()) continue;
